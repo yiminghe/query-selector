@@ -175,7 +175,7 @@ _querySelector_ = function (exports) {
       var bit = a.compareDocumentPosition(b) & 4;
       return bit ? -1 : 1;
     };
-    exports = {
+    var util = exports = {
       ie: ie,
       unique: function () {
         var hasDuplicate, baseHasDuplicate = true;
@@ -238,7 +238,7 @@ _querySelector_ = function (exports) {
         return value === '*' || el.nodeName.toLowerCase() === value.toLowerCase();
       },
       hasSingleClass: function (el, cls) {
-        var className = el && module.exports.getSimpleAttr(el, 'class');
+        var className = el && util.getSimpleAttr(el, 'class');
         return className && (className = className.replace(/[\r\t\n]/g, SPACE)) && (SPACE + className + SPACE).indexOf(SPACE + cls + SPACE) > -1;
       },
       startsWith: function (str, prefix) {
@@ -3132,7 +3132,7 @@ _querySelector_ = function (exports) {
     };
     select.matches = matches;
     select.util = util;
-    select.version = '1.0.2';
+    select.version = '1.0.3';
     return exports;
   }();
   exports = querySelector;
