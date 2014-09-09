@@ -1,0 +1,22 @@
+{
+  "name": "query-selector",
+  "author": "yiminghe <yiminghe@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/kissyteam/query-selector.git"
+  },
+  "dependencies": {
+    "modulex": "modulex#master"
+  },
+  "ignore": [
+    "**/*",
+    "!build/**/*",
+    "!lib/**/*",
+    "!meta/**/*",
+    "!index.js"
+  ],
+  "devDependencies": {
+    "jquery": "1.x"
+  }
+}
