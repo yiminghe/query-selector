@@ -3131,7 +3131,7 @@ querySelector = function (exports) {
   };
   select.matches = matches;
   select.util = util;
-  select.version = '1.0.5';
+  select.version = '1.0.6';
   return exports;
 }();
 module.exports = querySelector;
