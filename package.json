@@ -1,6 +1,6 @@
 {
   "name": "query-selector",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "yiminghe <yiminghe@gmail.com>",
   "engines": {
     "node": "~0.10"
@@ -50,6 +50,7 @@
     "node-jscover-handler": "^1.0.3",
     "precommit-hook": "^1.0.7",
     "serve-index": "^1.1.6",
+    "gulp-wrapper": "^0.1.5",
     "serve-static": "^1.5.3"
   },
   "precommit": [
@@ -57,6 +58,7 @@
   ],
   "scripts": {
     "lint": "gulp lint",
+    "publish": "gulp tag",
     "browser-test": "mocha-phantomjs http://localhost:8011/tests/runner.html",
     "browser-test-build": "mocha-phantomjs http://localhost:8011/tests/runner.html?build",
     "browser-test-cover": "mocha-phantomjs -R node_modules/node-jscover/lib/reporters/mocha/console http://localhost:8011/tests/runner.html?coverage"

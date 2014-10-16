@@ -13,9 +13,16 @@ var jshint = require('gulp-jshint');
 var stylish = require('jshint-stylish');
 var jscs = require('gulp-jscs');
 var replace = require('gulp-replace');
-
+var wrapper = require('gulp-wrapper');
+var date = new Date();
+var header = ['/*',
+        'Copyright ' + date.getFullYear() + ', ' + packageInfo.name + '@' + packageInfo.version,
+        packageInfo.license + ' Licensed',
+        'build time: ' + (date.toGMTString()),
+    '*/', ''].join('\n');
+    
 gulp.task('lint', function () {
-    return gulp.src('./lib/**/*.js')
+    return gulp.src(['./lib/**/*.js', '!**/parser.js'])
         .pipe(jshint())
         .pipe(jshint.reporter(stylish))
         .pipe(jshint.reporter('fail'))
@@ -26,6 +33,12 @@ gulp.task('clean', function () {
     return gulp.src(build, {
         read: false
     }).pipe(clean());
+});
+
+gulp.task('tag',function(done){
+    var cp = require('child_process');
+    var version = packageInfo.version;
+    cp.exec('git tag '+version +' | git push origin '+version+':'+version+' | git push origin master:master',done);
 });
 
 gulp.task('standalone', ['build'], function () {
@@ -43,6 +56,9 @@ gulp.task('standalone', ['build'], function () {
         }))
         .pipe(rename('query-selector-standalone-debug.js'))
         .pipe(replace(/@VERSION@/g, packageInfo.version))
+        .pipe(wrapper({
+                    header: header
+                }))
         .pipe(gulp.dest(build))
         .pipe(filter('query-selector-standalone-debug.js'))
         .pipe(replace(/@DEBUG@/g, ''))

@@ -1,3 +1,8 @@
+/*
+Copyright 2014, query-selector@1.0.5
+MIT Licensed
+build time: Thu, 16 Oct 2014 03:34:50 GMT
+*/
 var querySelectorAll = (function(){ var module = {};
 
 var _querySelector_;
@@ -3132,7 +3137,7 @@ _querySelector_ = function (exports) {
     };
     select.matches = matches;
     select.util = util;
-    select.version = '1.0.4';
+    select.version = '1.0.5';
     return exports;
   }();
   exports = querySelector;
