@@ -6,9 +6,6 @@
     "type": "git",
     "url": "http://github.com/kissyteam/query-selector.git"
   },
-  "dependencies": {
-    "modulex": "*"
-  },
   "ignore": [
     "**/*",
     "!build/**/*",
@@ -17,6 +14,7 @@
     "!index.js"
   ],
   "devDependencies": {
+    "modulex": "*",
     "jquery": "1.x"
   }
 }
