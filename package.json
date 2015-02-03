@@ -1,32 +1,17 @@
 {
   "name": "query-selector",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": "yiminghe <yiminghe@gmail.com>",
   "engines": {
-    "node": "~0.10"
+    "node": ">=0.10"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "http://github.com/kissyteam/query-selector.git"
-  },
-  "testling": {
-    "server": "server.js",
-    "html": "tests/runner.html",
-    "browsers": [
-      "ie/6..latest",
-      "chrome/latest",
-      "firefox/latest",
-      "safari/latest",
-      "iphone/6..lastest",
-      "ipad/6..latest",
-      "android-browser/latest"
-    ]
+    "url": "http://github.com/yiminghe/query-selector.git"
   },
   "devDependencies": {
-    "body-parser": "^1.6.5",
     "expect.js": "^0.3.1",
-    "express": "^4.8.5",
     "gulp": "^3.8.7",
     "gulp-clean": "^0.3.1",
     "gulp-filter": "^1.0.0",
@@ -40,27 +25,25 @@
     "gulp-replace": "^0.4.0",
     "gulp-uglify": "^0.3.1",
     "gulp-util": "^3.0.0",
-    "jsdom": "^1.0.0-pre.6",
-    "jshint": "^2.5.5",
-    "jshint-stylish": "^0.4.0",
-    "kison": "^0.3.5",
-    "mocha": "^1.21.4",
-    "node-jscover": "^0.6.8",
-    "node-jscover-coveralls": "^1.0.10",
-    "node-jscover-handler": "^1.0.3",
-    "precommit-hook": "^1.0.7",
-    "serve-index": "^1.1.6",
     "gulp-wrapper": "^0.1.5",
-    "serve-static": "^1.5.3"
+    "jquery": "^1.11.2",
+    "jsdom": "^1.0.0-pre.6",
+    "kison": "^0.3.5",
+    "precommit-hook": "^1.0.7",
+    "rc-server": "1.x",
+    "rc-tools": "1.x"
   },
   "precommit": [
     "lint"
   ],
+  "config": {
+    "port": 8011
+  },
   "scripts": {
-    "lint": "gulp lint",
-    "publish": "gulp tag",
-    "browser-test": "mocha-phantomjs http://localhost:8011/tests/runner.html",
-    "browser-test-build": "mocha-phantomjs http://localhost:8011/tests/runner.html?build",
-    "browser-test-cover": "mocha-phantomjs -R node_modules/node-jscover/lib/reporters/mocha/console http://localhost:8011/tests/runner.html?coverage"
+    "start": "node --harmony ./node_modules/.bin/rc-server",
+    "lint": "rc-tools run lint",
+    "publish": "rc-tools run tag",
+    "browser-test": "rc-tools run browser-test",
+    "browser-test-cover": "rc-tools run browser-test-cover"
   }
 }
