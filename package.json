@@ -1,6 +1,7 @@
 {
   "name": "query-selector",
-  "version": "1.0.8",
+  "version": "1.0.9",
+  "description": "javascript implementation of querySelectorAll",
   "author": "yiminghe <yiminghe@gmail.com>",
   "engines": {
     "node": ">=0.10"
@@ -44,7 +45,7 @@
   "scripts": {
     "start": "node --harmony ./node_modules/.bin/rc-server",
     "lint": "rc-tools run lint",
-    "publish": "spm publish && rc-tools run tag",
+    "publish": "rc-tools run tag",
     "browser-test": "rc-tools run browser-test",
     "browser-test-cover": "rc-tools run browser-test-cover"
   }
