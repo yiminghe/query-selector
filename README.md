@@ -24,3 +24,10 @@ console.log(querySelectorAll('#t span', doc).length);
 console.log(querySelectorAll('#t span', doc)[0].innerHTML);
 console.log(Date.now()-time);
 ```
+
+## history
+
+### 2.0.0 / 2019.08.14
+
+- use new build tool and test tool
+- change export: `var querySelectorAll = require('query-selector').default;`
