@@ -4,8 +4,8 @@
  * @author yiminghe@gmail.com
  */
 
-var util = require('./query-selector/util');
-var parser = require('./query-selector/parser');
+import util from './query-selector/util';
+import parser from './query-selector/parser';
 
 var EXPANDO_SELECTOR_KEY = '_ks_data_selector_id_',
   caches = {},
@@ -40,7 +40,7 @@ var unescape = /\\([\da-fA-F]{1,6}[\x20\t\r\n\f]?|.)/g,
 var matchExpr;
 
 var pseudoFnExpr = {
-  'nth-child': function (el, param) {
+  'nth-child'(el, param) {
     var ab = getAb(param),
       a = ab.a,
       b = ab.b;
@@ -68,7 +68,7 @@ var pseudoFnExpr = {
     }
     return 0;
   },
-  'nth-last-child': function (el, param) {
+  'nth-last-child'(el, param) {
     var ab = getAb(param),
       a = ab.a,
       b = ab.b;
@@ -96,7 +96,7 @@ var pseudoFnExpr = {
     }
     return 0;
   },
-  'nth-of-type': function (el, param) {
+  'nth-of-type'(el, param) {
     var ab = getAb(param),
       a = ab.a,
       b = ab.b;
@@ -125,7 +125,7 @@ var pseudoFnExpr = {
     }
     return 0;
   },
-  'nth-last-of-type': function (el, param) {
+  'nth-last-of-type'(el, param) {
     var ab = getAb(param),
       a = ab.a,
       b = ab.b;
@@ -154,26 +154,26 @@ var pseudoFnExpr = {
     }
     return 0;
   },
-  lang: function (el, lang) {
+  lang(el, lang) {
     var elLang;
     lang = unEscape(lang.toLowerCase());
     do {
       if ((elLang = (isContextXML ?
         el.getAttribute('xml:lang') || el.getAttribute('lang') :
-          el.lang))) {
+        el.lang))) {
         elLang = elLang.toLowerCase();
         return elLang === lang || elLang.indexOf(lang + '-') === 0;
       }
     } while ((el = el.parentNode) && el.nodeType === 1);
     return false;
   },
-  not: function (el, negationArg) {
+  not(el, negationArg) {
     return !matchExpr[negationArg.t](el, negationArg.value);
   }
 };
 
 var pseudoIdentExpr = {
-  empty: function (el) {
+  empty(el) {
     var childNodes = el.childNodes,
       index = 0,
       len = childNodes.length,
@@ -191,49 +191,49 @@ var pseudoIdentExpr = {
     }
     return 1;
   },
-  root: function (el) {
+  root(el) {
     if (el.nodeType === 9) {
       return true;
     }
     return el.ownerDocument &&
       el === el.ownerDocument.documentElement;
   },
-  'first-child': function (el) {
+  'first-child'(el) {
     return pseudoFnExpr['nth-child'](el, 1);
   },
-  'last-child': function (el) {
+  'last-child'(el) {
     return pseudoFnExpr['nth-last-child'](el, 1);
   },
-  'first-of-type': function (el) {
+  'first-of-type'(el) {
     return pseudoFnExpr['nth-of-type'](el, 1);
   },
-  'last-of-type': function (el) {
+  'last-of-type'(el) {
     return pseudoFnExpr['nth-last-of-type'](el, 1);
   },
-  'only-child': function (el) {
+  'only-child'(el) {
     return pseudoIdentExpr['first-child'](el) &&
       pseudoIdentExpr['last-child'](el);
   },
-  'only-of-type': function (el) {
+  'only-of-type'(el) {
     return pseudoIdentExpr['first-of-type'](el) &&
       pseudoIdentExpr['last-of-type'](el);
   },
-  focus: function (el) {
+  focus(el) {
     var doc = el.ownerDocument;
     return doc && el === doc.activeElement &&
       (!doc.hasFocus || doc.hasFocus()) && !!(el.type || el.href || el.tabIndex >= 0);
   },
-  target: function (el) {
+  target(el) {
     var hash = location.hash;
     return hash && hash.slice(1) === getAttr(el, 'id');
   },
-  enabled: function (el) {
+  enabled(el) {
     return !el.disabled;
   },
-  disabled: function (el) {
+  disabled(el) {
     return el.disabled;
   },
-  checked: function (el) {
+  checked(el) {
     var nodeName = el.nodeName.toLowerCase();
     return (nodeName === 'input' && el.checked) ||
       (nodeName === 'option' && el.selected);
@@ -241,25 +241,25 @@ var pseudoIdentExpr = {
 };
 
 var attributeExpr = {
-  '~=': function (elValue, value) {
+  '~='(elValue, value) {
     if (!value || value.indexOf(' ') > -1) {
       return 0;
     }
     return (' ' + elValue + ' ').indexOf(' ' + value + ' ') !== -1;
   },
-  '|=': function (elValue, value) {
+  '|='(elValue, value) {
     return (' ' + elValue).indexOf(' ' + value + '-') !== -1;
   },
-  '^=': function (elValue, value) {
+  '^='(elValue, value) {
     return value && util.startsWith(elValue, value);
   },
-  '$=': function (elValue, value) {
+  '$='(elValue, value) {
     return value && util.endsWith(elValue, value);
   },
-  '*=': function (elValue, value) {
+  '*='(elValue, value) {
     return value && elValue.indexOf(value) !== -1;
   },
-  '=': function (elValue, value) {
+  '='(elValue, value) {
     return elValue === value;
   }
 };
@@ -284,10 +284,10 @@ var relativeExpr = {
 matchExpr = {
   tag: isTag,
   cls: hasSingleClass,
-  id: function (el, value) {
+  id(el, value) {
     return getAttr(el, 'id') === value;
   },
-  attrib: function (el, value) {
+  attrib(el, value) {
     var name = value.ident;
     if (!isContextXML) {
       name = name.toLowerCase();
@@ -307,7 +307,7 @@ matchExpr = {
     }
     return 0;
   },
-  pseudo: function (el, value) {
+  pseudo(el, value) {
     var fn, fnStr, ident;
     if ((fnStr = value.fn)) {
       if (!(fn = pseudoFnExpr[fnStr])) {
@@ -332,7 +332,7 @@ function unEscape(str) {
 parser.lexer.yy = {
   trim: util.trim,
   unEscape: unEscape,
-  unEscapeStr: function (str) {
+  unEscapeStr(str) {
     return this.unEscape(str.slice(1, -1));
   }
 };
@@ -674,7 +674,7 @@ function select(str, context, seeds) {
   return ret;
 }
 
-module.exports = select;
+export default select;
 
 select.parse = function (str) {
   return parser.parse(str);
@@ -683,8 +683,6 @@ select.parse = function (str) {
 select.matches = matches;
 
 select.util = util;
-
-select.version = '@VERSION@';
 /**
  * @ignore
  * note 2013-03-28

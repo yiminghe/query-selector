@@ -7,8 +7,6 @@ querySelectorAll in javascript
 [![NPM downloads](http://img.shields.io/npm/dm/query-selector.svg)](https://npmjs.org/package/query-selector)
 [![Build Status](https://secure.travis-ci.org/yiminghe/query-selector.png?branch=master)](https://travis-ci.org/yiminghe/query-selector)
 [![Coverage Status](https://img.shields.io/coveralls/yiminghe/query-selector.svg)](https://coveralls.io/r/yiminghe/query-selector?branch=master)
-[![Dependency Status](https://gemnasium.com/yiminghe/query-selector.png)](https://gemnasium.com/yiminghe/query-selector)
-[![node version](https://img.shields.io/badge/node.js-%3E=_0.10-green.svg?style=flat-square)](http://nodejs.org/download/)
 
 
 ## use on node

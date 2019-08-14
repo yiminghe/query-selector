@@ -202,7 +202,7 @@ var compareNodeOrder = ('sourceIndex' in (doc && doc.documentElement || {})) ? f
   return bit ? -1 : 1;
 };
 
-var util = module.exports = {
+var util = {
   ie: ie,
 
   unique: (function () {
@@ -344,3 +344,5 @@ var util = module.exports = {
     }
   }
 };
+
+export default util;

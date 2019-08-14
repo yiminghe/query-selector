@@ -1,52 +1,60 @@
 {
   "name": "query-selector",
-  "version": "1.0.9",
+  "version": "2.0.0",
   "description": "javascript implementation of querySelectorAll",
   "author": "yiminghe <yiminghe@gmail.com>",
-  "engines": {
-    "node": ">=0.10"
-  },
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "http://github.com/yiminghe/query-selector.git"
   },
-  "devDependencies": {
-    "expect.js": "^0.3.1",
-    "gulp": "^3.8.7",
-    "gulp-clean": "^0.3.1",
-    "gulp-filter": "^1.0.0",
-    "gulp-footer": "^1.0.5",
-    "gulp-header": "^1.0.5",
-    "gulp-jscs": "^1.1.0",
-    "gulp-jshint": "^1.8.4",
-    "gulp-kclean": "^0.0.13",
-    "gulp-modulex": "^1.0.0",
-    "gulp-rename": "^1.2.0",
-    "gulp-replace": "^0.4.0",
-    "gulp-uglify": "^0.3.1",
-    "gulp-util": "^3.0.0",
-    "gulp-wrapper": "^0.1.5",
-    "jquery": "^1.11.2",
-    "jsdom": "^1.0.0-pre.6",
-    "kison": "^0.3.5",
-    "precommit-hook": "^1.0.7",
-    "rc-server": "1.x",
-    "rc-tools": "1.x"
-  },
-  "precommit": [
-    "lint"
-  ],
-  "config": {
-    "port": 8011
-  },
-  "spm": {
+  "@pika/pack": {
+    "pipeline": [
+      [
+        "@pika/plugin-standard-pkg",
+        {
+          "exclude": [
+            "__tests__/**/*"
+          ]
+        }
+      ],
+      [
+        "pika-plugin-build-web-babel"
+      ],
+      [
+        "@pika/plugin-build-node"
+      ]
+    ]
   },
   "scripts": {
-    "start": "node --harmony ./node_modules/.bin/rc-server",
-    "lint": "rc-tools run lint",
-    "publish": "rc-tools run tag",
-    "browser-test": "rc-tools run browser-test",
-    "browser-test-cover": "rc-tools run browser-test-cover"
-  }
+    "test": "jest",
+    "coverage": "npm test -- --coverage  && cat ./coverage/lcov.info | coveralls",
+    "prettier": "prettier --write \"{src,stories}/**/*.{js,tsx}\"",
+    "start": "start-storybook -p 6006",
+    "pub": "npm run build && npm publish pkg && git push",
+    "build": "pack build",
+    "lint-staged": "lint-staged"
+  },
+  "devDependencies": {
+    "@pika/pack": "^0.5.0",
+    "@pika/plugin-build-node": "0.6.x",
+    "@pika/plugin-standard-pkg": "0.6.x",
+    "@pika/types": "0.6.x",
+    "coveralls": "^3.0.6",
+    "jest": "^24.8.0",
+    "jquery": "^3.4.1",
+    "lint-staged": "^9.2.1",
+    "pika-plugin-build-web-babel": "^0.6.0",
+    "pre-commit": "1.x",
+    "prettier": "^1.18.2"
+  },
+  "lint-staged": {
+    "*.{tsx,js,jsx,ts}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "pre-commit": [
+    "lint-staged"
+  ]
 }

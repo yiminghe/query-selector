@@ -3,12 +3,12 @@
  * @author yiminghe@gmail.com
  */
 
-/*jshint quotmark:false*/
-var select = require('../');
-var expect = require('expect.js');
+
+import select from '../src/index';
+import $ from 'jquery';
+
 var matches = select.matches;
 var ieVersion = select.util.ie;
-var $ = require('jquery');
 
 document.documentElement.id = 'html';
 
@@ -29,7 +29,7 @@ function ok(a, name) {
     if (typeof a === 'function') {
       a = a();
     }
-    expect(!!a).to.equal(true);
+    expect(!!a).toEqual(true);
   });
 }
 
@@ -46,15 +46,16 @@ function getAttr(el, name) {
  * @example t("Check for something", "//[a]", ["foo", "baar"]);
  * @result returns true if "//[a]" return two elements with the IDs 'foo' and 'baar'
  */
-function t(a, b, c) {
-  it(a, function () {
+function t(a, b, c, only) {
+  const f = only ? it.only : it;
+  f(a, function () {
     var f = select(b),
       s = [],
       i = 0;
     for (; i < f.length; i++) {
       s.push(getAttr(f[i], 'id'));
     }
-    expect(s).to.eql(c);
+    expect(s).toEqual(c);
   });
 
 }
@@ -80,7 +81,7 @@ function broken(name, selector) {
     try {
       select(selector);
     } catch (e) {
-      expect(e.message.toLowerCase().indexOf("syntax error")).to.be.above(-1);
+      expect(e.message.toLowerCase().indexOf("syntax error")).toBeGreaterThan(-1);
     }
   });
 }
@@ -93,29 +94,289 @@ function equal(a, b, name) {
     if (typeof b === 'function') {
       b = b();
     }
-    expect(a).to.eql(b);
+    expect(a).toEqual(b);
   });
 }
 
-var xml = '';
+var xml = `
+<?xml version='1.0' encoding='UTF-8'?>
+<soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'
+               xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+               xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
+    <soap:Body>
+        <jsconf xmlns='http://www.example.com/ns1'>
+            <response xmlns:ab='http://www.example.com/ns2'>
+                <meta>
+                    <component id='seite1' class='component'>
+                        <properties xmlns:cd='http://www.example.com/ns3'>
+                            <property name='prop1'>
+                                <thing/>
+                                <value>1</value>
+                            </property>
+                            <property name='prop2'>
+                                <thing att='something'/>
+                            </property>
+                            <foo_bar>foo</foo_bar>
+                        </properties>
+                    </component>
+                </meta>
+            </response>
+        </jsconf>
+    </soap:Body>
+</soap:Envelope>`;
 
-$.ajax({
-  url: './fixture/xml.xml',
-  dataType: 'text',
-  async: false,
-  success: function (d) {
-    xml = d;
-  }
-});
+const fixtureHtml = `
+<div id="fixture">
+  <b id="no-empty"><!-- comment --><a/></b>
+    <h1 id="qunit-header">tests</h1>
 
-$.ajax({
-  url: './fixture/data.html',
-  dataType: 'text',
-  async: false,
-  success: function (d) {
-    $('body').append(d);
-  }
-});
+    <h2 id="qunit-banner"></h2>
+
+    <div id="qunit-testrunner-toolbar"></div>
+    <h2 id="qunit-userAgent"></h2>
+
+    <a href="test.html" id="test-a-href"></a>
+
+    <!-- this iframe is outside the #qunit-fixture so it won't reload constantly wasting time, but it means the tests must be "safe" and clean up after themselves -->
+    <iframe id="loadediframe" name="loadediframe" style="display:none;"></iframe>
+    <dl id="dl" style="position:absolute;top:-32767px;left:-32767px;">
+        <div id="qunit-fixture">
+            <p id="firstp">See <a id="simon1" href="//simon.incutio.com/archive/2003/03/25/#getElementsBySelector"
+                                  rel="bookmark">this blog entry</a> for more information.</p>
+
+            <p id="ap">
+                Here are some [links] in a normal paragraph:
+                <a id="google" href="//www.google.com/" title="Google!">Google</a>,
+                <a id="groups" href="//groups.google.com/" class="GROUPS">Google Groups (Link)</a>.
+                This link has <code id="code1"><a href="//smin" id="anchor1">class="blog"</a></code>:
+                <a href="//diveintomark.org/" class="blog" hreflang="en" id="mark">diveintomark</a>
+
+            </p>
+
+            <div id="foo">
+                <p id="sndp">Everything inside the red border is inside a div with <code>id="foo"</code>.</p>
+
+                <p lang="en" id="en">This is a normal link: <a id="yahoo" href="//www.yahoo.com/" class="blogTest">Yahoo</a>
+                </p>
+
+                <p id="sap">This link has <code><a href="#2" id="anchor2">class="blog"</a></code>: <a
+                        href="//simon.incutio.com/" class="blog link" id="simon">Simon Willison's Weblog</a></p>
+
+            </div>
+
+            <!-- Test HTML -->
+            <div id="nothiddendiv" style="height:1px;background:white;" class="nothiddendiv">
+                <div id="nothiddendivchild"></div>
+            </div>
+
+            <span id="name+value"></span>
+
+            <p id="first">Try them out:</p>
+            <ul id="firstUL"></ul>
+            <ol id="empty"><!-- comment --></ol>
+          
+            <form id="form" action="formaction">
+                <label for="text1" id="label-for">Action:</label>
+                <input type="text" name="action" value="Test" id="text1" maxlength="30"/>
+                <input type="text" name="text2" value="Test" id="text2" disabled="disabled"/>
+                <input type="radio" name="radio1" id="radio1" value="on"/>
+
+                <input type="radio" name="radio2" id="radio2" checked="checked"/>
+                <input type="checkbox" name="check" id="check1" checked="checked"/>
+                <input type="checkbox" id="check2" value="on"/>
+
+                <input type="hidden" name="hidden" id="hidden1"/>
+                <input type="text" style="display:none;" name="foo[bar]" id="hidden2"/>
+
+                <input type="text" id="name" name="name" value="name"/>
+                <input type="search" id="search" name="search" value="search"/>
+
+                <button id="button" name="button" type="button">Button</button>
+
+                <textarea id="area1" maxlength="30">foobar</textarea>
+
+                <select name="select1" id="select1">
+                    <option id="option1a" class="emptyopt" value="">Nothing</option>
+                    <option id="option1b" value="1">1</option>
+                    <option id="option1c" value="2">2</option>
+                    <option id="option1d" value="3">3</option>
+                </select>
+                <select name="select2" id="select2">
+                    <option id="option2a" class="emptyopt" value="">Nothing</option>
+                    <option id="option2b" value="1">1</option>
+                    <option id="option2c" value="2">2</option>
+                    <option id="option2d" selected="selected" value="3">3</option>
+                </select>
+                <select name="select3" id="select3" multiple="multiple">
+                    <option id="option3a" class="emptyopt" value="">Nothing</option>
+                    <option id="option3b" selected="selected" value="1">1</option>
+                    <option id="option3c" selected="selected" value="2">2</option>
+                    <option id="option3d" value="3">3</option>
+                    <option id="option3e">no value</option>
+                </select>
+                <select name="select4" id="select4" multiple="multiple">
+                    <optgroup disabled="disabled">
+                        <option id="option4a" class="emptyopt" value="">Nothing</option>
+                        <option id="option4b" disabled="disabled" selected="selected" value="1">1</option>
+                        <option id="option4c" selected="selected" value="2">2</option>
+                    </optgroup>
+                    <option selected="selected" disabled="disabled" id="option4d" value="3">3</option>
+                    <option id="option4e">no value</option>
+                </select>
+                <select name="select5" id="select5">
+                    <option id="option5a" value="3">1</option>
+                    <option id="option5b" value="2">2</option>
+                    <option id="option5c" value="1">3</option>
+                </select>
+
+                <object id="object1" codebase="stupid">
+                    <param name="p1" value="x1"/>
+                    <param name="p2" value="x2"/>
+                </object>
+
+                <span id="台北Táiběi"></span>
+                <span id="台北" lang="中文"></span>
+                <span id="utf8class1" class="台北Táiběi 台北"></span>
+                <span id="utf8class2" class="台北"></span>
+                <span id="foo:bar" class="foo:bar"><span id="foo_descendent"></span></span>
+                <span id="test.foo[5]bar" class="test.foo[5]bar"></span>
+
+                <foo_bar id="foobar">test element</foo_bar>
+            </form>
+            <b id="floatTest">Float test.</b>
+            <iframe id="iframe" name="iframe"></iframe>
+            <form id="lengthtest">
+                <input type="text" id="length" name="test"/>
+                <input type="text" id="idTest" name="id"/>
+            </form>
+            <table id="table"></table>
+
+            <form id="name-tests">
+                <!-- Inputs with a grouped name attribute. -->
+                <input name="types[]" id="types_all" type="checkbox" value="all"/>
+                <input name="types[]" id="types_anime" type="checkbox" value="anime"/>
+                <input name="types[]" id="types_movie" type="checkbox" value="movie"/>
+            </form>
+
+            <form id="testForm" action="#" method="get">
+    <textarea name="T3" rows="2" cols="15">?
+        Z</textarea>
+                <input type="hidden" name="H1" value="x"/>
+                <input type="hidden" name="H2"/>
+                <input name="PWD" type="password" value=""/>
+                <input name="T1" type="text"/>
+                <input name="T2" type="text" value="YES" readonly="readonly"/>
+                <input type="checkbox" name="C1" value="1"/>
+                <input type="checkbox" name="C2"/>
+                <input type="radio" name="R1" value="1"/>
+                <input type="radio" name="R1" value="2"/>
+                <input type="text" name="My Name" value="me"/>
+                <input type="reset" name="reset" value="NO"/>
+                <select name="S1">
+                    <option value="abc">ABC</option>
+                    <option value="abc">ABC</option>
+                    <option value="abc">ABC</option>
+                </select>
+                <select name="S2" multiple="multiple" size="3">
+                    <option value="abc">ABC</option>
+                    <option value="abc">ABC</option>
+                    <option value="abc">ABC</option>
+                </select>
+                <select name="S3">
+                    <option selected="selected">YES</option>
+                </select>
+                <select name="S4">
+                    <option value="" selected="selected">NO</option>
+                </select>
+                <input type="submit" name="sub1" value="NO"/>
+                <input type="submit" name="sub2" value="NO"/>
+                <input type="image" name="sub3" value="NO"/>
+                <button name="sub4" type="submit" value="NO">NO</button>
+                <input name="D1" type="text" value="NO" disabled="disabled"/>
+                <input type="checkbox" checked="checked" disabled="disabled" name="D2" value="NO"/>
+                <input type="radio" name="D3" value="NO" checked="checked" disabled="disabled"/>
+                <select name="D4" disabled="disabled">
+                    <option selected="selected" value="NO">NO</option>
+                </select>
+                <input id="list-test" type="text"/>
+                <datalist id="datalist">
+                    <option value="option"></option>
+                </datalist>
+            </form>
+            <div id="moretests">
+                <form>
+                    <div id="checkedtest" style="display:none;">
+                        <input type="radio" name="checkedtestradios" checked="checked"/>
+                        <input type="radio" name="checkedtestradios" value="on"/>
+                        <input type="checkbox" name="checkedtestcheckboxes" checked="checked"/>
+                        <input type="checkbox" name="checkedtestcheckboxes"/>
+                    </div>
+                </form>
+                <div id="nonnodes"><span>hi</span> there <!-- mon ami --></div>
+                <div id="t2037">
+                    <div>
+                        <div class="hidden">hidden</div>
+                    </div>
+                </div>
+                <div id="t6652">
+                    <div></div>
+                </div>
+                <div id="t12087">
+                    <input type="hidden" id="el12087" data-comma="0,1"/>
+                </div>
+                <div id="no-clone-exception">
+                    <object>
+                        <embed></embed>
+                    </object>
+                </div>
+                <div id="names-group">
+                    <span id="name-is-example" name="example"></span>
+                    <span id="name-is-div" name="div"></span>
+                </div>
+            </div>
+
+            <div id="tabindex-tests">
+                <ol id="listWithTabIndex" tabindex="5">
+                    <li id="foodWithNegativeTabIndex" tabindex="-1">Rice</li>
+                    <li id="foodNoTabIndex">Beans</li>
+                    <li>Blinis</li>
+                    <li>Tofu</li>
+                </ol>
+
+                <div id="divWithNoTabIndex">I'm hungry. I should...</div>
+                <span>...</span><a href="#" id="linkWithNoTabIndex">Eat lots of food</a><span>...</span> |
+                <span>...</span><a href="#" id="linkWithTabIndex" tabindex="2">Eat a little food</a><span>...</span> |
+                <span>...</span><a href="#" id="linkWithNegativeTabIndex" tabindex="-1">Eat no food</a><span>...</span>
+                <span>...</span><a id="linkWithNoHrefWithNoTabIndex">Eat a burger</a><span>...</span>
+                <span>...</span><a id="linkWithNoHrefWithTabIndex" tabindex="1">Eat some funyuns</a><span>...</span>
+                <span>...</span><a id="linkWithNoHrefWithNegativeTabIndex" tabindex="-1">Eat some funyuns</a><span>...</span>
+            </div>
+
+            <div id="liveHandlerOrder">
+                <span id="liveSpan1"><a href="#" id="liveLink1"></a></span>
+                <span id="liveSpan2"><a href="#" id="liveLink2"></a></span>
+            </div>
+
+            <div id="siblingTest">
+                <em id="siblingfirst">1</em>
+                <em id="siblingnext">2</em>
+                <em id="siblingthird">
+                    <em id="siblingchild">
+                        <em id="siblinggrandchild">
+                            <em id="siblinggreatgrandchild"></em>
+                        </em>
+                    </em>
+                </em>
+                <span id="siblingspan"></span>
+            </div>
+            ​
+        </div>
+    </dl>
+    <br id="last"/>
+</div>
+`;
+
+$('body').append(fixtureHtml);
 
 var createWithFriesXML = function () {
   return $.parseXML(xml);
@@ -128,12 +389,12 @@ describe("element", function () {
   var form = document.getElementById("form");
 
   it('fix href normalization', function () {
-    expect(select('a[href="test.html"]').length).to.equal(1);
+    expect(select('a[href="test.html"]').length).toEqual(1);
   });
 
   it('Select all', function () {
 
-    expect(select("*").length).to.above(30);
+    expect(select("*").length).toBeGreaterThan(30);
   });
 
   it('Select all elements, no comment nodes', function () {
@@ -143,7 +404,7 @@ describe("element", function () {
         good = false;
       }
     }
-    expect(good).to.equal(true);
+    expect(good).toEqual(true);
   });
 
   t("Element Selector html", "html", ["html"]);
@@ -155,16 +416,16 @@ describe("element", function () {
 
   it("Object/param as context", function () {
     var obj1 = document.getElementById("object1");
-    expect(select("param", obj1).length).to.equal(2);
+    expect(select("param", obj1).length).toEqual(2);
   });
 
   it("Finding selects with a context.", function () {
-    expect(select("select", form)).to.eql(q("select1", "select2", "select3", "select4", "select5"));
+    expect(select("select", form)).toEqual(q("select1", "select2", "select3", "select4", "select5"));
   });
 
   // Check for unique-ness and sort order
   it("Check for duplicates: p, div p", function () {
-    expect(select("p, div p")).to.eql(select('p'));
+    expect(select("p, div p")).toEqual(select('p'));
   });
 
   t("Checking sort order -1", "#fixture h2, #fixture h1", ["qunit-header", "qunit-banner", "qunit-userAgent"]);
@@ -174,20 +435,20 @@ describe("element", function () {
   var lengthtest = document.getElementById("lengthtest");
 
   it("Finding element with id of ID. -1", function () {
-    expect(select("#idTest", lengthtest)).to.eql(q('idTest'));
+    expect(select("#idTest", lengthtest)).toEqual(q('idTest'));
   });
 
   it("Finding element with id of ID. -2", function () {
-    expect(select("[name='id']", lengthtest)).to.eql(q('idTest'));
+    expect(select("[name='id']", lengthtest)).toEqual(q('idTest'));
   });
 
   it("Finding elements with id of ID.", function () {
-    expect(select("input[id='idTest']", lengthtest)).to.eql(q('idTest'));
+    expect(select("input[id='idTest']", lengthtest)).toEqual(q('idTest'));
   });
 
   var siblingTest = document.getElementById("siblingTest");
   it("Element-rooted QSA select based on document context", function () {
-    expect(select("div em", siblingTest)).to.eql(q('siblingfirst',
+    expect(select("div em", siblingTest)).toEqual(q('siblingfirst',
       'siblingnext',
       'siblingthird',
       'siblingchild',
@@ -201,7 +462,7 @@ describe("element", function () {
     iframeDoc.open();
     iframeDoc.write("<body><p id='foo'>bar</p></body>");
     iframeDoc.close();
-    expect(select("p#foo", iframeDoc)).to.eql([iframeDoc.getElementById("foo")]);
+    expect(select("p#foo", iframeDoc)).toEqual([iframeDoc.getElementById("foo")]);
   });
 
   it("No stack or performance problems with large amounts of descendents", function () {
@@ -211,8 +472,8 @@ describe("element", function () {
     }
     html = $(html).appendTo(document.body);
 
-    expect(select("body div div div").length).to.above(0);
-    expect(select("body>div div div").length).to.above(0);
+    expect(select("body div div div").length).toBeGreaterThan(0);
+    expect(select("body>div div div").length).toBeGreaterThan(0);
 
     html.remove();
   });
@@ -232,43 +493,43 @@ describe("XML Document Selectors", function () {
   var xml = createWithFriesXML();
 
   it("Element Selector with underscore", function () {
-    expect(select("foo_bar", xml).length).to.equal(1);
+    expect(select("foo_bar", xml).length).toEqual(1);
   });
 
   it("Class selector", function () {
-    expect(select(".component", xml).length).to.equal(1);
+    expect(select(".component", xml).length).toEqual(1);
   });
 
   it("Attribute selector for class", function () {
-    expect(select("component[class*=component]", xml).length).to.equal(1);
+    expect(select("component[class*=component]", xml).length).toEqual(1);
   });
 
   it("Attribute selector with name", function () {
-    expect(select("property[name=prop2]", xml).length).to.equal(1);
+    expect(select("property[name=prop2]", xml).length).toEqual(1);
   });
 
   it("Attribute selector with name -2", function () {
-    expect(select("[name=prop2]", xml).length).to.equal(1);
+    expect(select("[name=prop2]", xml).length).toEqual(1);
   });
 
   it("Attribute selector with ID", function () {
-    expect(select("#seite1", xml).length).to.equal(1);
+    expect(select("#seite1", xml).length).toEqual(1);
   });
 
   it("Attribute selector with ID -2", function () {
-    expect(select("component#seite1", xml).length).to.equal(1);
+    expect(select("component#seite1", xml).length).toEqual(1);
   });
 
   it("Attribute selector filter with ID", function () {
-    expect(matches("#seite1", select("component", xml)).length).to.equal(1);
+    expect(matches("#seite1", select("component", xml)).length).toEqual(1);
   });
 
   it("Descendent selector and dir caching", function () {
-    expect(select("meta property thing", select("component", xml)[0]).length).to.equal(2);
+    expect(select("meta property thing", select("component", xml)[0]).length).toEqual(2);
   });
 
   it("Check for namespaced element", function () {
-    expect(matches("soap\\:Envelope", [xml.lastChild]).length).to.equal(1);
+    expect(matches("soap\\:Envelope", [xml.lastChild]).length).toEqual(1);
   });
 });
 
@@ -331,7 +592,7 @@ describe("id", function () {
 
   it("Escaped ID as context", function () {
     var tmp = $("<div id='fiddle\\Foo'><span id='fiddleSpan'></span></div>").appendTo("#qunit-fixture");
-    expect(select("#fiddle\\\\Foo > span")).to.eql(q(["fiddleSpan"]));
+    expect(select("#fiddle\\\\Foo > span")).toEqual(q(["fiddleSpan"]));
     tmp.remove();
   });
 
@@ -343,10 +604,10 @@ describe("id", function () {
   t("All Children of ID with no children", "#firstUL > *", []);
 
   var tmpNode = $("<div>" +
-  "<a name='tName1'>tName1 <code>A</code></a>" +
-  "<a name='tName2'>tName2 <code>A</code></a>" +
-  "<div id='tName1'>tName1 <code>DIV</code></div>" +
-  "</div>").appendTo("#qunit-fixture");
+    "<a name='tName1'>tName1 <code>A</code></a>" +
+    "<a name='tName2'>tName2 <code>A</code></a>" +
+    "<div id='tName1'>tName1 <code>DIV</code></div>" +
+    "</div>").appendTo("#qunit-fixture");
 
   equal(select("#tName1")[0].id, "tName1", "ID selector with same value for a name attribute");
   equal(select("#tName2"), [], "ID selector non-existing but name attribute on an A tag");
@@ -402,7 +663,7 @@ describe("class", function () {
   it("Finding a second class.", function () {
     var div = document.createElement("div");
     div.innerHTML = "<div class='test e'></div><div class='test'></div>";
-    expect(select(".e", div)).to.eql([div.firstChild]);
+    expect(select(".e", div)).toEqual([div.firstChild]);
 
   });
 
@@ -410,22 +671,22 @@ describe("class", function () {
     var div = document.createElement("div");
     div.innerHTML = "<div class='test e'></div><div class='test'></div>";
     div.lastChild.className = "e";
-    expect(select(".e", div)).to.eql([div.firstChild, div.lastChild]);
+    expect(select(".e", div)).toEqual([div.firstChild, div.lastChild]);
   });
   it('".null does not match an element with no class"', function () {
     var div = document.createElement("div");
     div.innerHTML = "<div class='test e'></div><div class='test'></div>";
-    expect(matches('.null', [div]).length).to.equal(0);
+    expect(matches('.null', [div]).length).toEqual(0);
     div.className = "null";
-    expect(matches('.null', [div]).length).to.equal(1);
+    expect(matches('.null', [div]).length).toEqual(1);
   });
 
   it('".null does not match an element with no class"', function () {
     var div = document.createElement("div");
     div.innerHTML = "<div class='test e'></div><div class='test'></div>";
-    expect(matches('.null div', [div.firstChild]).length).to.equal(0);
+    expect(matches('.null div', [div.firstChild]).length).toEqual(0);
     div.className = "null";
-    expect(matches('.null div', [div.firstChild]).length).to.equal(1);
+    expect(matches('.null div', [div.firstChild]).length).toEqual(1);
   });
 
 
@@ -434,7 +695,7 @@ describe("class", function () {
     div.innerHTML = "<div class='test e'></div><div class='test'></div>";
 
     div.lastChild.className += " hasOwnProperty toString";
-    expect(select(".hasOwnProperty.toString", div)).to.eql([div.lastChild]);
+    expect(select(".hasOwnProperty.toString", div)).toEqual([div.lastChild]);
   });
 });
 
@@ -453,17 +714,17 @@ describe("name", function () {
 
   it("Name selector within the context of another element", function () {
     var form = document.getElementById("form");
-    expect(select("input[name=action]", form)).to.eql(q("text1"));
+    expect(select("input[name=action]", form)).toEqual(q("text1"));
   });
 
   it("Name selector for grouped form element within the context of another element", function () {
     var form = document.getElementById("form");
-    expect(select("input[name='foo[bar]']", form)).to.eql(q("hidden2"));
+    expect(select("input[name='foo[bar]']", form)).toEqual(q("hidden2"));
   });
 
   it("Make sure that rooted queries on forms (with possible expandos) work.", function () {
     var form = $("<form><input name='id'/></form>").appendTo("#fixture");
-    expect(select("input", form[0]).length).to.eql(1);
+    expect(select("input", form[0]).length).toEqual(1);
   });
 
   describe('name nested', function () {
@@ -703,6 +964,7 @@ describe("attributes", function () {
 describe("pseudo - (parent|empty)", function () {
   t("Empty", "#fixture ul:empty", ["firstUL"]);
   t("Empty with comment node", "ol:empty", ["empty"]);
+  t("Not Empty with comment node and extra node", "b:empty", []);
 });
 
 describe("pseudo - (first|last|only)-(child|of-type)", function () {
@@ -725,7 +987,7 @@ describe("pseudo - (first|last|only)-(child|of-type)", function () {
   it("No longer second child", function () {
     // Verify that the child position isn't being cached improperly
     var secondChildren = $("p:nth-child(2)").before("<div></div>");
-    expect(select("p:nth-child(2)")).to.eql([]);
+    expect(select("p:nth-child(2)")).toEqual([]);
     secondChildren.prev().remove();
   });
 
@@ -767,7 +1029,7 @@ describe("pseudo - nth-of-type", function () {
 
   it("Nth-of-type(-n+2)", function () {
     expect(select("#qunit-fixture > :nth-of-type(-n+2)", null, select('#qunit-fixture > *')))
-      .to.eql(makeArray($("#qunit-fixture > :nth-of-type(-n+2)")));
+      .toEqual(makeArray($("#qunit-fixture > :nth-of-type(-n+2)")));
   });
 
 });
@@ -803,14 +1065,14 @@ describe("pseudo - misc", function () {
     if (document.activeElement !== tmp || (document.hasFocus && !document.hasFocus()) ||
       (document.querySelectorAll && !document.querySelectorAll("div:focus").length)) {
     } else {
-      expect(select(":focus")).to.eql([tmp]);
-      expect(matchesSelector(tmp, ":focus")).to.equal(true);
+      expect(select(":focus")).toEqual([tmp]);
+      expect(matchesSelector(tmp, ":focus")).toEqual(true);
     }
 
     // Blur tmp
     tmp.blur();
     document.body.focus();
-    expect(matchesSelector(tmp, ":focus")).to.equal(false);
+    expect(matchesSelector(tmp, ":focus")).toEqual(false);
     document.body.removeChild(tmp);
   });
 
@@ -826,14 +1088,14 @@ describe("pseudo - misc", function () {
     if (document.activeElement !== tmp || (document.hasFocus && !document.hasFocus()) ||
       (document.querySelectorAll && !document.querySelectorAll("div:focus").length)) {
     } else {
-      expect(select(":focus")).to.eql(q("tmp_input"));
-      expect(matchesSelector(tmp, ":focus")).to.equal(true);
+      expect(select(":focus")).toEqual(q("tmp_input"));
+      expect(matchesSelector(tmp, ":focus")).toEqual(true);
     }
 
     // Blur tmp
     tmp.blur();
     document.body.focus();
-    expect(matchesSelector(tmp, ":focus")).to.equal(false);
+    expect(matchesSelector(tmp, ":focus")).toEqual(false);
     document.body.removeChild(tmp);
   });
 
@@ -900,7 +1162,7 @@ describe("pseudo - :target and :root", function () {
     var oldHash = window.location.hash;
     window.location.hash = "new-link";
 
-    expect(select(":target")).to.eql([$link[0]]);
+    expect(select(":target")).toEqual([$link[0]]);
 
     $link.remove();
     window.location.hash = oldHash;
@@ -985,7 +1247,7 @@ describe("pseudo - :lang", function () {
       if (!r) {
         matchesSelector(elem, selector);
       }
-      expect(r).to.equal(true);
+      expect(r).toEqual(true);
       if (!r) {
         console.error('error:' + text + " should match " + selector);
       }
@@ -993,7 +1255,7 @@ describe("pseudo - :lang", function () {
     },
     assertNoMatch = function (text, elem, selector) {
       var r = matchesSelector(elem, selector);
-      expect(r).to.equal(false);
+      expect(r).toEqual(false);
       if (r) {
         console.error('error:' + text + " should fail " + selector);
       }
@@ -1061,7 +1323,7 @@ describe("pseudo - :lang", function () {
     try {
       select("dl:lang(c++)");
     } catch (e) {
-      expect(e.message.indexOf("Syntax error")).to.above(-1);
+      expect(e.message.indexOf("Syntax error")).toBeGreaterThan(-1);
     }
   });
 
