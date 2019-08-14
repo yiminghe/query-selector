@@ -9,13 +9,11 @@ querySelectorAll in javascript
 [![Coverage Status](https://img.shields.io/coveralls/yiminghe/query-selector.svg)](https://coveralls.io/r/yiminghe/query-selector?branch=master)
 
 
-## use on node
-
-require jsdom
+## usage
 
 ```
-var querySelectorAll = require('query-selector');
-var jsdom = require("jsdom").jsdom;
+import querySelectorAll from 'query-selector'; // var querySelectorAll = require('query-selector').default;
+import {jsdom} from "jsdom";
 var doc = jsdom('<html><div id="t"><span>1</span><span>2</span></div></html>');
 var time = Date.now();
 console.log(doc.querySelectorAll('#t span', doc).length);
@@ -25,17 +23,4 @@ time = Date.now();
 console.log(querySelectorAll('#t span', doc).length);
 console.log(querySelectorAll('#t span', doc)[0].innerHTML);
 console.log(Date.now()-time);
-```
-
-## use standalone on browser
-
-```html
-<script src="/build/query-selector-standalone-debug.js"></script>
-<div id="t">
-    <span>1</span>
-    <span>2</span>
-</div>
-<script>
-    console.log(querySelectorAll('#t span'));
-</script>
 ```
